@@ -71,7 +71,10 @@ class KNearestNeighbor(object):
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        pass
+        temp = X[i] - self.X_train[j] #Computing element-wise difference. 
+        temp = np.square(temp) #Taking element-wise square to put everything positive. 
+        testsize = temp.shape 
+        dists[i, j] = temp.sum()
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -93,7 +96,11 @@ class KNearestNeighbor(object):
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-      pass
+      temp = np.repeat(np.asmatrix(X[i, :]), num_train, axis = 0)
+      temp = temp - self.X_train
+      temp = np.square(temp) 
+      wutda = np.asarray((temp.sum(axis = 1)))
+      dists[i, :] = wutda[:, 0]
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -127,7 +134,7 @@ class KNearestNeighbor(object):
     #########################################################################
     return dists
 
-  def predict_labels(self, dists, k=1):
+  def predict_labels(self, dists, num_labels, k=1):
     """
     Given a matrix of distances between test points and training points,
     predict a label for each test point.
@@ -153,6 +160,10 @@ class KNearestNeighbor(object):
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
+      temp = np.argsort(dists[i, :]) #Computing the indices of training  
+      #examples (sorted w.r.t distance) 
+      temp = temp[:k] #Keeping only first k indices and slicing off the others. 
+      closest_y = self.y_train[temp] #Storing y-labels of k-nearest trainint examples. 
       pass
       #########################################################################
       # TODO:                                                                 #
@@ -162,9 +173,15 @@ class KNearestNeighbor(object):
       # label.                                                                #
       #########################################################################
       pass
+      classtopost = 0 #Assuming 0 class is the winner, as of yet.
+      winnerby = np.sum(closest_y == 0)
+      for j in range(1, num_labels): 
+            if np.sum(closest_y == j) > winnerby: 
+                winnerby = np.sum(closest_y == j)
+                classtopost = j 
+      y_pred[i] = classtopost 
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
 
     return y_pred
-
