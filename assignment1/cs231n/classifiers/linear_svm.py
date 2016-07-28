@@ -84,6 +84,7 @@ def svm_loss_vectorized(W, X, y, reg):
     temp = temp - X[i].dot(W[:, y[i]]) #Subtracting true label's score from each class' score.
     temp = temp + 1 #Adding one as a default geometric margin 
     temp[y[i]] = 0 #Don't need to compute the margin between true class' label. 
+    temp = np.maximum(0, temp) #Shifting everything negative to zero. 
     loss += np.sum(temp) #Finally summing over all class' margins to get a total margin for 
     #ith example. 
   loss /= num_train
@@ -91,7 +92,6 @@ def svm_loss_vectorized(W, X, y, reg):
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
-
 
   #############################################################################
   # TODO:                                                                     #
