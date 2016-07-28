@@ -77,7 +77,17 @@ def svm_loss_vectorized(W, X, y, reg):
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  loss = 0.0 
+  for i in xrange(num_train): 
+    temp = X[i].dot(W) #A vector with jth entry as a score of jth class for ith example
+    temp = temp - X[i].dot(W[:, y[i]]) #Subtracting true label's score from each class' score.
+    temp = temp + 1 #Adding one as a default geometric margin 
+    temp[y[i]] = 0 #Don't need to compute the margin between true class' label. 
+    loss += np.sum(temp) #Finally summing over all class' margins to get a total margin for 
+    #ith example. 
+  loss /= num_train
+  loss += 0.5 * reg * np.sum(W * W) #Adding the regularization term. 
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
