@@ -49,15 +49,6 @@ def svm_loss_naive(W, X, y, reg):
 
   # Add regularization to the loss.
   loss += 0.5 * reg * np.sum(W * W)
-
-  #############################################################################
-  # TODO:                                                                     #
-  # Compute the gradient of the loss function and store it dW.                #
-  # Rather that first computing the loss and then computing the derivative,   #
-  # it may be simpler to compute the derivative at the same time that the     #
-  # loss is being computed. As a result you may need to modify some of the    #
-  # code above to compute the gradient.                                       #
-  #############################################################################
   dW = dW + 2 * W #Adding the gradient of regularization. 
 
   return loss, dW
@@ -72,14 +63,12 @@ def svm_loss_vectorized(W, X, y, reg):
   loss = 0.0
   dW = np.zeros(W.shape) # initialize the gradient as zero
 
-  #############################################################################
-  # TODO:                                                                     #
-  # Implement a vectorized version of the structured SVM loss, storing the    #
-  # result in loss.                                                           #
-  #############################################################################
   num_train = X.shape[0]
   loss = 0.0 
   for i in xrange(num_train): 
+    
+    toadd = np.zeros(W.shape)
+    
     temp = X[i].dot(W) #A vector with jth entry as a score of jth class for ith example
     temp = temp - X[i].dot(W[:, y[i]]) #Subtracting true label's score from each class' score.
     temp = temp + 1 #Adding one as a default geometric margin 
@@ -87,23 +76,14 @@ def svm_loss_vectorized(W, X, y, reg):
     temp = np.maximum(0, temp) #Shifting everything negative to zero. 
     loss += np.sum(temp) #Finally summing over all class' margins to get a total margin for 
     #ith example. 
+    for j in temp.nonzero()[0]:  
+        if j != y[i]: 
+            toadd[:, j] = X[i]
+    toadd[:, y[i]] = toadd[:, y[i]] - X[i] 
+    dW = dW + toadd 
+    
   loss /= num_train
   loss += 0.5 * reg * np.sum(W * W) #Adding the regularization term. 
-  #############################################################################
-  #                             END OF YOUR CODE                              #
-  #############################################################################
-
-  #############################################################################
-  # TODO:                                                                     #
-  # Implement a vectorized version of the gradient for the structured SVM     #
-  # loss, storing the result in dW.                                           #
-  #                                                                           #
-  # Hint: Instead of computing the gradient from scratch, it may be easier    #
-  # to reuse some of the intermediate values that you used to compute the     #
-  # loss.                                                                     #
-  #############################################################################
-  pass
-  #############################################################################
-  #                             END OF YOUR CODE                              #
-  #############################################################################
+  dW = dW / num_train
+  dW = dW + 2 * W
   return loss, dW
