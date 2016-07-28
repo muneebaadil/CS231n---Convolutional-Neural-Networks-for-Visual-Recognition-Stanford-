@@ -39,7 +39,7 @@ def svm_loss_naive(W, X, y, reg):
         toadd[:, j] = X[i] 
         toadd[:, y[i]] = toadd[:, y[i]] - X[i]
       dW = dW + toadd 
-
+  dW = dW / num_train
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
