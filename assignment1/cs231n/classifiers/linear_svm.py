@@ -33,13 +33,16 @@ def svm_loss_naive(W, X, y, reg):
       if j == y[i]:
         continue
       margin = scores[j] - correct_class_score + 1 # note delta = 1
-      toadd = np.zeros(W.shape)
+      toadd = np.zeros(W.shape) #Gradient matrix to add in every nested iteration. 
       if margin > 0:
         loss += margin
-        toadd[:, j] = X[i] 
-        toadd[:, y[i]] = toadd[:, y[i]] - X[i]
-      dW = dW + toadd 
-  dW = dW / num_train
+        toadd[:, j] = X[i] #Only jth column of W has incluence in Sj, and 
+        #its partial derivative = feature vector of ith training example. 
+        toadd[:, y[i]] = toadd[:, y[i]] - X[i] #Similarly, y(i)th column of W 
+        #influence and its partial derivative = feature vector of ith training example, 
+      dW = dW + toadd #finally subtracting those two to get the jacobian matrix of 
+      #jth class, ith training example.
+  dW = dW / num_train #Diving the overall gradient matrix by number of training examples. 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
