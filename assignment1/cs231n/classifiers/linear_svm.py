@@ -76,10 +76,10 @@ def svm_loss_vectorized(W, X, y, reg):
     temp = np.maximum(0, temp) #Shifting everything negative to zero. 
     loss += np.sum(temp) #Finally summing over all class' margins to get a total margin for 
     #ith example. 
-    for j in temp.nonzero()[0]:  
-        if j != y[i]: 
-            toadd[:, j] = X[i]
-    toadd[:, y[i]] = toadd[:, y[i]] - X[i] 
+    for j in temp.nonzero()[0]: #Iterating over all the class labels NOT shifted to zero.   
+        if j != y[i]: #Considering gradient ONLY WHEN j is not the correct class label. 
+            toadd[:, j] = X[i] #Gradient of score of jth class is just jth column of W being equal to X[i] 
+            toadd[:, y[i]] = toadd[:, y[i]] - X[i] #Likewise, Sy(i)'s gradient = -X[i]...
     dW = dW + toadd 
     
   loss /= num_train
