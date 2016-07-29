@@ -71,7 +71,10 @@ def softmax_loss_vectorized(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  scoresMatrix = np.exp(X.dot(W))
+  alpha = np.log(np.sum(scoresMatrix, axis = 1))
+  beta = np.log(scoresMatrix[np.arange(0, X.shape[0]), y])
+  loss = (np.sum(alpha - beta)) / X.shape[0]
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
