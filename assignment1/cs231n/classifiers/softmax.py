@@ -77,8 +77,9 @@ def softmax_loss_vectorized(W, X, y, reg):
   loss = (np.sum(alpha - beta)) / X.shape[0]
   loss += 0.5 * reg * np.sum(W * W)
 
-  temp = np.diag(np.sum(scoresMatrix, axis = 1)).dot(scoresMatrix)
-  dW = X.transpose().dot(temp)
+  for k in xrange(W.shape[1]):
+    temp = scoresMatrix[:, k] / np.sum(scoresMatrix, axis = 1)
+    dW[:, k] = temp.transpose().dot(X)
   
   binarylabels = np.zeros((X.shape[0], W.shape[1]))
   binarylabels[np.arange(0, X.shape[0]), y] = 1
