@@ -1,5 +1,6 @@
 import numpy as np
 from random import shuffle
+import math
 
 def softmax_loss_naive(W, X, y, reg):
   """
@@ -22,6 +23,8 @@ def softmax_loss_naive(W, X, y, reg):
   # Initialize the loss and gradient to zero.
   loss = 0.0
   dW = np.zeros_like(W)
+  num_train = X.shape[0]
+  num_classes = W.shape[1]
 
   #############################################################################
   # TODO: Compute the softmax loss and its gradient using explicit loops.     #
@@ -29,11 +32,25 @@ def softmax_loss_naive(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
-  #############################################################################
-  #                          END OF YOUR CODE                                 #
-  #############################################################################
+  
+  for i in xrange(num_train): 
+    toadd = np.zeros(W.shape) 
+    numerator = math.exp(W[:, y[i]].dot(X[i, :]))
+    denominator = 0.0 
+    for j in xrange(num_classes): 
+        denominator += math.exp(W[:, j].dot(X[i, :]))
+    for j in xrange(num_classes): 
+        toadd[:, j] = (-1 * W[:, j].dot(X[i, :] / denominator)) * X[i, :]
+    toadd[:, y[i]] = toadd[:, y[i]] + X[i, :] 
+    dW = dW + toadd 
+    loss -= math.log(numerator / denominator)
 
+  loss /= num_train
+  loss += 0.5 * reg * np.sum(W * W)
+    
+  dW = dW / num_train
+  dW = dW + 2 * W
+    
   return loss, dW
 
 
