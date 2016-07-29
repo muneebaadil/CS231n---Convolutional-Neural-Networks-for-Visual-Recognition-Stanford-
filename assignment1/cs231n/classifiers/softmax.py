@@ -40,7 +40,7 @@ def softmax_loss_naive(W, X, y, reg):
     for j in xrange(num_classes): 
         denominator += math.exp(W[:, j].dot(X[i, :]))
     for j in xrange(num_classes): 
-        toadd[:, j] = (-1 * W[:, j].dot(X[i, :] / denominator)) * X[i, :]
+        toadd[:, j] = (-1 * math.exp(W[:, j].dot(X[i, :])) / denominator) * X[i, :]
     toadd[:, y[i]] = toadd[:, y[i]] + X[i, :] 
     toadd = -1 * toadd 
     dW = dW + toadd 
