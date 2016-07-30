@@ -64,6 +64,8 @@ def softmax_loss_vectorized(W, X, y, reg):
   # Initialize the loss and gradient to zero.
   loss = 0.0
   dW = np.zeros_like(W)
+  num_classes = W.shape[1]
+  num_train = X.shape[0]
 
   #############################################################################
   # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
@@ -73,20 +75,20 @@ def softmax_loss_vectorized(W, X, y, reg):
   #############################################################################
   scoresMatrix = np.exp(X.dot(W))
   alpha = np.log(np.sum(scoresMatrix, axis = 1))
-  beta = np.log(scoresMatrix[np.arange(0, X.shape[0]), y])
-  loss = (np.sum(alpha - beta)) / X.shape[0]
+  beta = np.log(scoresMatrix[np.arange(0, num_train), y])
+  loss = (np.sum(alpha - beta)) / num_train
   loss += 0.5 * reg * np.sum(W * W)
-
-  for k in xrange(W.shape[1]):
-    temp = scoresMatrix[:, k] / np.sum(scoresMatrix, axis = 1)
-    dW[:, k] = temp.transpose().dot(X)
+    
+  temp = np.diag(1 / np.sum(scoresMatrix, axis = 1))
+  temp = temp.dot(scoresMatrix) 
+  dW = X.transpose().dot(temp) 
   
-  binarylabels = np.zeros((X.shape[0], W.shape[1]))
-  binarylabels[np.arange(0, X.shape[0]), y] = 1
+  binarylabels = np.zeros((num_train, num_classes))
+  binarylabels[np.arange(0, num_train), y] = 1
   #temp2 = X.transpose().dot(binarylabels)
   dW = dW - X.transpose().dot(binarylabels)
   
-  dW = dW / X.shape[0]
+  dW = dW / num_train
   dW = dW + 2 * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
