@@ -68,16 +68,15 @@ class TwoLayerNet(object):
     N, D = X.shape
     scores = None
     # Compute the forward pass
-    layer1 = X.dot(W1) + b1
-    act1 = np.maximum(0, layer1)
-    layer2 = act1.dot(W2) + b2
-    scores = layer2
     #############################################################################
     # TODO: Perform the forward pass, computing the class scores for the input. #
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    layer1 = X.dot(W1) + b1
+    act1 = np.maximum(0, layer1) 
+    layer2 = act1.dot(W2) + b2
+    scores = layer2
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -95,7 +94,11 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    pass
+    scoresMatrix = np.exp(scores)
+    alpha = np.log(np.sum(scoresMatrix, axis = 1))
+    beta = np.log(scoresMatrix[np.arange(0, N), y])
+    loss = (np.sum(alpha - beta)) / N
+    loss += 0.5 * reg * np.sum(W1 * W1) * np.sum(W2 * W2)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
