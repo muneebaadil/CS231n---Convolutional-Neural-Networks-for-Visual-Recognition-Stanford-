@@ -68,9 +68,9 @@ class TwoLayerNet(object):
     N, D = X.shape
     scores = None
     # Compute the forward pass
-    layer1 = X.dot(W1)
+    layer1 = X.dot(W1) + b1
     act1 = np.maximum(0, layer1)
-    layer2 = act1.dot(W2) 
+    layer2 = act1.dot(W2) + b2
     scores = layer2
     #############################################################################
     # TODO: Perform the forward pass, computing the class scores for the input. #
