@@ -73,9 +73,18 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
+    #Comments convention: (F) forward pass computation, (B) backward pass computation; 
+    #basically a local gradient calculation.
     layer1 = X.dot(W1) + b1
     act1 = np.maximum(0, layer1) 
-    layer2 = act1.dot(W2) + b2
+    
+    layer2 = act1.dot(W2) + b2 #(F) 
+    layer2_grad_b2 = np.ones(b2.shape) #(B) 
+    layer2_grad_W2 = np.asmatrix(np.sum(act1, axis = 0)).transpose() #(B) 
+    tomultiplywith = np.asmatrix(np.ones(b2.shape)) #(B)
+    layer2_grad_W2 = layer2_grad_W2.dot(tomultiplywith) #(B)
+    del tomultiplywith #(B)
+    
     scores = layer2
     #############################################################################
     #                              END OF YOUR CODE                             #
