@@ -94,10 +94,35 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    scoresMatrix = np.exp(scores)
-    alpha = np.log(np.sum(scoresMatrix, axis = 1))
-    beta = np.log(scoresMatrix[np.arange(0, N), y])
-    loss = (np.sum(alpha - beta)) / N
+    #Comments convention: (F) forward pass computation, (B) backward pass computation; 
+    #basically a local gradient calculation.
+    scoresMatrix = np.exp(scores) #(F)
+    scoresMatrix_grad = np.exp(scores) #(B)
+    
+    alpha = np.sum(scoresMatrix, axis = 1) #(F)
+    alpha_grad = np.ones(scoresMatrix.shape) #(B)
+    
+    correctclass = scoresMatrix[np.arange(0, N), y] #(F)
+    correctclass_grad = np.zeros(scoresMatrix.shape) #(B) 
+    correctclass_grad[np.arange(0, N), y] = scoresMatrix[np.arange(0, N), y] #(B)
+    
+    logalpha = np.log(alpha) #(F) 
+    logalpha_grad = 1 / alpha #(B)
+    
+    logcorrectclass = np.log(correctclass) #(F)
+    logcorrectclass_grad = 1 / correctclass #(B)
+    
+    minus = logalpha - logcorrectclass #(F) 
+    minus_grad_x = np.ones(N) #(B)
+    minus_grad_y = -1 * np.ones(N) #(B)
+    
+    summation = np.sum(minus) #(F)
+    summation_grad = np.ones(N) #(B)
+    
+    division = summation / N #(F)
+    division_grad = 1 / N #(B)
+    
+    loss = division
     loss += 0.5 * reg * np.sum(W1 * W1) * np.sum(W2 * W2)
     #############################################################################
     #                              END OF YOUR CODE                             #
