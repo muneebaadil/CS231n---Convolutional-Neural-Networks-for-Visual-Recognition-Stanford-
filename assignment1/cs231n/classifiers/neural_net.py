@@ -172,6 +172,12 @@ class TwoLayerNet(object):
     #..through scoresMatrix function gate now. 
     grad_back_1 = grad_back_1 * grad_back_1
     grad_back_2 = grad_back_2 * grad_back_2 
+    #Since gradients sum at branches so... 
+    grad_back = grad_back_1 + grad_back_2
+    #Through layer 2 now..
+    grad_back_b = layer2_grad_b2 * np.sum(grad_back, axis = 0) 
+    grad_back_W2 = layer2_grad_W2.dot(np.diag(np.sum(grad_back, axis = 0)))
+    print grad_back_W2.shape
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
