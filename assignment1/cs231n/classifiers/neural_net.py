@@ -79,16 +79,18 @@ class TwoLayerNet(object):
     layer1_grad = None #(B)
     
     act1 = np.maximum(0, layer1) #(F)
-    act1_grad = None #(B)
+    act1_grad = np.zeros(act1.shape) #(B)
+    act1_grad[act1.nonzero()[0], act1.nonzero()[1]] = 1 #(B)
     
     layer2 = act1.dot(W2) + b2 #(F) 
     layer2_grad_b2 = np.ones(b2.shape) #(B) 
     layer2_grad_W2 = np.asmatrix(np.sum(act1, axis = 0)).transpose() #(B) 
     tomultiplywith = np.asmatrix(np.ones(b2.shape)) #(B)
     layer2_grad_W2 = layer2_grad_W2.dot(tomultiplywith) #(B)
-    del tomultiplywith #(B)
-    layer2_grad_act1 = np.sum(W2, axis = 1) #(B) 
-    print layer2_grad_act1.shape #(B)
+    layer2_grad_act1 = np.asmatrix(np.sum(W2, axis = 1)) #(B) 
+    tomultiplywith = np.ones((N, 1)) #(B)
+    layer2_grad_act1 = tomultiplywith.dot(layer2_grad_act1) #(B) 
+    del tomultiplywith
     
     scores = layer2
     #############################################################################
