@@ -75,8 +75,11 @@ class TwoLayerNet(object):
     #############################################################################
     #Comments convention: (F) forward pass computation, (B) backward pass computation; 
     #basically a local gradient calculation.
-    layer1 = X.dot(W1) + b1
-    act1 = np.maximum(0, layer1) 
+    layer1 = X.dot(W1) + b1 #(F)
+    layer1_grad = None #(B)
+    
+    act1 = np.maximum(0, layer1) #(F)
+    act1_grad = None #(B)
     
     layer2 = act1.dot(W2) + b2 #(F) 
     layer2_grad_b2 = np.ones(b2.shape) #(B) 
@@ -84,6 +87,8 @@ class TwoLayerNet(object):
     tomultiplywith = np.asmatrix(np.ones(b2.shape)) #(B)
     layer2_grad_W2 = layer2_grad_W2.dot(tomultiplywith) #(B)
     del tomultiplywith #(B)
+    layer2_grad_act1 = np.sum(W2, axis = 1) #(B) 
+    print layer2_grad_act1.shape #(B)
     
     scores = layer2
     #############################################################################
