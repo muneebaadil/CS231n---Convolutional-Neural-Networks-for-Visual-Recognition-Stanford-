@@ -103,8 +103,7 @@ class TwoLayerNet(object):
     loss = (np.sum(alpha - beta)) / N
     loss += 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2) + sum(b1*b1) + sum(b2*b2))
     
-    hisprobs = np.exp(scores) / np.sum(np.exp(scores), 1)[:,np.newaxis]
-    myprobs = np.diag(np.sum(scoresExp, axis = 1)).dot(scoresExp)
+    probs = np.diag(1.0 / np.sum(scoresExp, axis = 1)).dot(scoresExp)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -116,9 +115,9 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    tosubtract = np.zeros(myprobs.shape)
+    tosubtract = np.zeros(probs.shape)
     tosubtract[np.arange(0, N), y] = 1
-    loss_grad = (hisprobs - tosubtract) / N
+    loss_grad = (probs - tosubtract) / N
     
     grads['W2'] = act1.transpose().dot(loss_grad) + reg * W2 
     grads['b2'] = loss_grad.sum(axis = 0)
