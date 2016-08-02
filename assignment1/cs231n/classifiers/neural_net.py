@@ -76,11 +76,10 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    relu = lambda x: np.maximum(x, 0)
-    h0 = X.dot(W1) + b1
-    h1 = relu(h0)
-    h2 = h1.dot(W2) + b2
-    scores = h2
+    layer1 = X.dot(W1) + b1 #(F)
+    act1 = np.maximum(0, layer1) #(F)
+    layer2 = act1.dot(W2) + b2 #(F)
+    scores = layer2
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -98,12 +97,14 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    maxscore = np.max(scores, 1)
-    shifted_scores = scores - maxscore[:,np.newaxis]
-    probs = np.exp(shifted_scores) / np.sum(np.exp(shifted_scores), 1)[:,np.newaxis]
-    losses = -np.log( probs[xrange(N), y] )
-    loss = losses.sum() / N
+    scoresExp = np.exp(scores)
+    alpha = np.log(np.sum(scoresExp, axis = 1))
+    beta = np.log(scoresExp[np.arange(0, N), y])
+    loss = (np.sum(alpha - beta)) / N
     loss += 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2) + sum(b1*b1) + sum(b2*b2))
+    
+    hisprobs = np.exp(scores) / np.sum(np.exp(scores), 1)[:,np.newaxis]
+    myprobs = np.diag(np.sum(scoresExp, axis = 1)).dot(scoresExp)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -115,15 +116,17 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    true_indices = np.zeros(probs.shape)
-    true_indices[xrange(N),y] = 1
-    ds = (probs - true_indices)/N
-    grads['W2'] = h1.transpose().dot(ds) + reg*W2
-    grads['b2'] = ds.sum(axis=0)
-    dh1 = ds.dot(W2.transpose())
-    dh0 = dh1*1*(np.maximum(h0, 0)>0)
-    grads['W1'] = X.transpose().dot(dh0) + reg*W1
-    grads['b1'] = dh0.sum(axis=0)
+    tosubtract = np.zeros(myprobs.shape)
+    tosubtract[np.arange(0, N), y] = 1
+    loss_grad = (hisprobs - tosubtract) / N
+    
+    grads['W2'] = act1.transpose().dot(loss_grad) + reg * W2 
+    grads['b2'] = loss_grad.sum(axis = 0)
+    #dh1 = ds.dot(W2.transpose())
+    #dh0 = dh1*1*(np.maximum(h0, 0)>0)
+    #grads['W1'] = X.transpose().dot(dh0) + reg*W1
+    #grads['b1'] = dh0.sum(axis=0)
+    
     
     #############################################################################
     #                              END OF YOUR CODE                             #
