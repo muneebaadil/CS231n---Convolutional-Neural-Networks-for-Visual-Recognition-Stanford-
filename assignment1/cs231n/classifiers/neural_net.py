@@ -77,10 +77,9 @@ class TwoLayerNet(object):
     #basically a local gradient calculation.
     layer1 = X.dot(W1) + b1 #(F)
     layer1_grad_b1 = np.ones(b1.shape) #(B)
-    layer1_grad_W1 = np.asmatrix(np.sum(X, axis = 0)).transpose()
-    tomultiplywith = np.asmatrix(np.ones(b1.shape))
-    layer1_grad_W1 = layer1_grad_W1.dot(tomultiplywith)
-    print layer1_grad_W1.shape
+    layer1_grad_W1 = np.asmatrix(np.sum(X, axis = 0)).transpose() #(B)
+    tomultiplywith = np.asmatrix(np.ones(b1.shape)) #(B)
+    layer1_grad_W1 = layer1_grad_W1.dot(tomultiplywith) #(B)
     
     act1 = np.maximum(0, layer1) #(F)
     act1_grad = np.zeros(act1.shape) #(B)
@@ -155,7 +154,7 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
