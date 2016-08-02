@@ -66,7 +66,8 @@ class TwoLayerNet(object):
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = X.shape
-    C = W2.shape[1]
+    D, H = W1.shape 
+    H, C = W2.shape 
     scores = None
     # Compute the forward pass
     #############################################################################
@@ -78,9 +79,8 @@ class TwoLayerNet(object):
     #basically a local gradient calculation.
     layer1 = X.dot(W1) + b1 #(F)
     layer1_grad_b1 = np.ones(b1.shape) #(B)
-    layer1_grad_W1 = np.asmatrix(np.sum(X, axis = 0)).transpose() #(B)
-    tomultiplywith = np.asmatrix(np.ones(b1.shape)) #(B)
-    layer1_grad_W1 = layer1_grad_W1.dot(tomultiplywith) #(B)
+    layer1_grad_W1 = np.repeat(np.sum(X, axis = 0), H) #(B)
+    layer1_grad_W1 = layer1_grad_W1.reshape((D, -1)) #(B)
     
     act1 = np.maximum(0, layer1) #(F)
     act1_grad = np.zeros(act1.shape) #(B)
@@ -114,36 +114,18 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    #Comments convention: (F) forward pass computation, (B) backward pass computation; 
-    #basically a local gradient calculation.
-    scoresMatrix = np.exp(scores) #(F)
-    scoresMatrix_grad = np.exp(scores) #(B)
-    
-    alpha = np.sum(scoresMatrix, axis = 1) #(F)
-    alpha_grad = np.ones(scoresMatrix.shape) #(B)
-    
-    correctclass = scoresMatrix[np.arange(0, N), y] #(F)
-    correctclass_grad = np.zeros(scoresMatrix.shape) #(B) 
-    correctclass_grad[np.arange(0, N), y] = scoresMatrix[np.arange(0, N), y] #(B)
-    
-    logalpha = np.log(alpha) #(F) 
-    logalpha_grad = 1 / alpha #(B)
-    
-    logcorrectclass = np.log(correctclass) #(F)
-    logcorrectclass_grad = 1 / correctclass #(B)
-    
-    minus = logalpha - logcorrectclass #(F) 
-    minus_grad_x = np.ones(N) #(B)
-    minus_grad_y = -1 * np.ones(N) #(B)
-    
-    summation = np.sum(minus) #(F)
-    summation_grad = np.ones(N) #(B)
-    
-    division = summation / N #(F)
-    division_grad = 1.0 / N #(B)
-    
-    loss = division
+    #Forward pass: Next 5 lines (loss computation) are encoded in one function unit. 
+    scoresExp = np.exp(scores)
+    alpha = np.log(np.sum(scoresExp, axis = 1))
+    beta = np.log(scoresExp[np.arange(0, N), y])
+    loss = (np.sum(alpha - beta)) / N
     loss += 0.5 * reg * np.sum(W1 * W1) * np.sum(W2 * W2)
+    
+    #Now computing local gradient of the above written loss function w.r.t scores. 
+    loss_grad = np.diag(np.sum(scoresExp, axis = 1)).dot(scoresExp)
+    tosubtract = np.zeros(loss_grad.shape)
+    tosubtract[np.arange(0, N), y] = 1
+    loss_grad = loss_grad - tosubtract 
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -155,32 +137,6 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    grad_back = 1 #Initializing the backward pass recursion process with gradient = 1
-    grad_back = grad_back * division_grad #Backpropagating through division gate.
-    grad_back = grad_back * summation_grad #..through summation gate.
-    #Since minus gate has two arguments, back-propagating different gradients 
-    #to each path. 
-    grad_back_1 = minus_grad_x * grad_back 
-    grad_back_2 = minus_grad_y * grad_back
-    #From now on, calculating different gradients to pass backwards, for each path..
-    grad_back_1 = logalpha_grad * grad_back_1 
-    grad_back_2 = logcorrectclass_grad * grad_back_2
-    #Passing through dimensionplus gate, and correctclass gate. 
-    grad_back_1 = grad_back_1.reshape((grad_back_1.shape[0], 1))
-    grad_back_1 = grad_back_1.dot(np.ones((1, C)))
-    grad_back_2 = np.diag(grad_back_2).dot(correctclass_grad)
-    #..through scoresMatrix function gate now. 
-    grad_back_1 = grad_back_1 * grad_back_1
-    grad_back_2 = grad_back_2 * grad_back_2 
-    #Since gradients sum at branches so... 
-    grad_back = grad_back_1 + grad_back_2
-    #Through layer 2 now..
-    grad_back_b2 = layer2_grad_b2 * np.sum(grad_back, axis = 0) 
-    grad_back_W2 = layer2_grad_W2.dot(np.diag(np.sum(grad_back, axis = 0)))
-    grads['W2'] = grad_back_W2
-    grads['b2'] = grad_back_b2
-    grads['W1'] = np.zeros(W1.shape)
-    grads['b1'] = np.zeros(b1.shape)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -290,5 +246,3 @@ class TwoLayerNet(object):
     ###########################################################################
 
     return y_pred
-
-
