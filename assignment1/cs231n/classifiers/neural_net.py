@@ -78,9 +78,6 @@ class TwoLayerNet(object):
     #Comments convention: (F) forward pass computation, (B) backward pass computation; 
     #basically a local gradient calculation.
     layer1 = X.dot(W1) + b1 #(F)
-    layer1_grad_b1 = np.ones(b1.shape) #(B)
-    layer1_grad_W1 = np.repeat(np.sum(X, axis = 0), H) #(B)
-    layer1_grad_W1 = layer1_grad_W1.reshape((D, -1)) #(B)
     
     act1 = np.maximum(0, layer1) #(F)
     act1_grad = np.zeros(act1.shape) #(B)
@@ -119,13 +116,13 @@ class TwoLayerNet(object):
     alpha = np.log(np.sum(scoresExp, axis = 1))
     beta = np.log(scoresExp[np.arange(0, N), y])
     loss = (np.sum(alpha - beta)) / N
-    loss += 0.5 * reg * np.sum(W1 * W1) * np.sum(W2 * W2)
+    loss += 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2) + sum(b1*b1) + sum(b2*b2))
     
     #Now computing local gradient of the above written loss function w.r.t scores. 
     loss_grad = np.diag(np.sum(scoresExp, axis = 1)).dot(scoresExp)
     tosubtract = np.zeros(loss_grad.shape)
     tosubtract[np.arange(0, N), y] = 1
-    loss_grad = loss_grad - tosubtract 
+    loss_grad = (loss_grad - tosubtract) / N
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -137,6 +134,9 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
+    grads['W2'] = act1.transpose().dot(loss_grad) + (reg * W2)
+    grads['b2'] = np.sum(loss_grad, axis = 0)
+    grads['W1'], grads['b1'] = np.zeros(W1.shape), np.zeros(b1.shape)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
