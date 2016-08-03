@@ -110,15 +110,13 @@ class TwoLayerNet(object):
 
     grads['W2'] = act1.transpose().dot(loss_grad) + reg * W2 
     grads['b2'] = loss_grad.sum(axis = 0) 
-    layer2_grad_act1_global = scores.dot(W2.transpose()) #Global gradient for layer2 w.r.t act1.
-    act1_grad_global = act1_grad_local * layer2_grad_act1_global 
-    grads['W1'] = X.transpose().dot(act1_grad_global)
-    grads['b1'] = np.sum(act1_grad_global, axis = 0)
-    print 'W1 grad shape:', grads['W1'].shape
+    act1_grad = loss_grad.dot(W2.transpose())
+    layer1_grad = act1_grad * (np.maximum(layer1, 0) > 0)
+    grads['W1'] = X.transpose().dot(layer1_grad) + reg * W1
+    grads['b1'] = layer1_grad.sum(axis = 0)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
-
     return loss, grads
 
 
