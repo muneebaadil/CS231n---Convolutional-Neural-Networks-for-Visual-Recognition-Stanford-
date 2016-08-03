@@ -77,7 +77,6 @@ class TwoLayerNet(object):
     # shape (N, C).                                                             #
     #############################################################################
     layer1 = X.dot(W1) + b1 #(F)
-    
     act1 = np.maximum(0, layer1) #(F)
     act1_grad_local = np.zeros(act1.shape) #(B)
     act1_grad_local[act1.nonzero()[0], act1.nonzero()[1]] = 1 #(B)
@@ -89,6 +88,7 @@ class TwoLayerNet(object):
     alpha = np.log(np.sum(scoresExp, axis = 1))
     beta = np.log(scoresExp[np.arange(0, N), y])
     
+
     loss = (np.sum(alpha - beta)) / N
     loss += 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2) + sum(b1*b1) + sum(b2*b2))
     
@@ -107,7 +107,6 @@ class TwoLayerNet(object):
     tosubtract = np.zeros(probs.shape)
     tosubtract[np.arange(0, N), y] = 1
     loss_grad = (probs - tosubtract) / N
-
     grads['W2'] = act1.transpose().dot(loss_grad) + reg * W2 
     grads['b2'] = loss_grad.sum(axis = 0) 
     act1_grad = loss_grad.dot(W2.transpose())
@@ -230,5 +229,4 @@ class TwoLayerNet(object):
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
-
     return y_pred
