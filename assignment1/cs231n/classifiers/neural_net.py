@@ -77,27 +77,16 @@ class TwoLayerNet(object):
     # shape (N, C).                                                             #
     #############################################################################
     layer1 = X.dot(W1) + b1 #(F)
-    act1 = np.maximum(0, layer1) #(F)
-    layer2 = act1.dot(W2) + b2 #(F)
-    scores = layer2
-    #############################################################################
-    #                              END OF YOUR CODE                             #
-    #############################################################################
     
-    # If the targets are not given then jump out, we're done
-    if y is None:
-      return scores
-
-    # Compute the loss
-    loss = None
-    #############################################################################
-    # Finish the forward pass, and compute the loss. This should include  #
-    # both the data loss and L2 regularization for W1 and W2. Store the result  #
-    # in the variable loss, which should be a scalar. Use the Softmax           #
-    # classifier loss. So that your results match ours, multiply the            #
-    # regularization loss by 0.5                                                #
-    #############################################################################
-    scoresExp = np.exp(scores)
+    act1 = np.maximum(0, layer1) #(F)
+    act1_grad_local = np.zeros(act1.shape) #(B)
+    act1_grad_local[act1.nonzero()[0], act1.nonzero()[1]] = 1 #(B)
+    
+    layer2 = act1.dot(W2) + b2 #(F) 
+    
+    scores = layer2 
+    scoresExp = np.exp(scores) 
+    
     alpha = np.log(np.sum(scoresExp, axis = 1))
     beta = np.log(scoresExp[np.arange(0, N), y])
     loss = (np.sum(alpha - beta)) / N
@@ -118,15 +107,14 @@ class TwoLayerNet(object):
     tosubtract = np.zeros(probs.shape)
     tosubtract[np.arange(0, N), y] = 1
     loss_grad = (probs - tosubtract) / N
-    
+
     grads['W2'] = act1.transpose().dot(loss_grad) + reg * W2 
-    grads['b2'] = loss_grad.sum(axis = 0)
-    #dh1 = ds.dot(W2.transpose())
-    #dh0 = dh1*1*(np.maximum(h0, 0)>0)
-    #grads['W1'] = X.transpose().dot(dh0) + reg*W1
-    #grads['b1'] = dh0.sum(axis=0)
-    
-    
+    grads['b2'] = loss_grad.sum(axis = 0) 
+    layer2_grad_act1_global = scores.dot(W2.transpose()) #Global gradient for layer2 w.r.t act1.
+    act1_grad_global = act1_grad_local * layer2_grad_act1_global 
+    grads['W1'] = X.transpose().dot(act1_grad_global)
+    grads['b1'] = np.sum(act1_grad_global, axis = 0)
+    print 'W1 grad shape:', grads['W1'].shape
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
