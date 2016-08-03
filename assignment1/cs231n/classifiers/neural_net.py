@@ -84,11 +84,11 @@ class TwoLayerNet(object):
     
     layer2 = act1.dot(W2) + b2 #(F) 
     
-    scores = layer2 
-    scoresExp = np.exp(scores) 
-    
+    scores = layer2
+    scoresExp = np.exp(scores)
     alpha = np.log(np.sum(scoresExp, axis = 1))
     beta = np.log(scoresExp[np.arange(0, N), y])
+    
     loss = (np.sum(alpha - beta)) / N
     loss += 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2) + sum(b1*b1) + sum(b2*b2))
     
