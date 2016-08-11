@@ -24,7 +24,11 @@ def affine_forward(x, w, b):
   # TODO: Implement the affine forward pass. Store the result in out. You     #
   # will need to reshape the input into rows.                                 #
   #############################################################################
-  pass
+  xshapes = () #Tuple to store the dimension sizes of input x matrix. 
+  xshapes = x.shape #Unpacking the shapes for future convenience
+  D, M = w.shape 
+  x = x.reshape((xshapes[0], -1)) #Reshaping design matrix into 2D matrix.
+  out = x.dot(w) + b
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
