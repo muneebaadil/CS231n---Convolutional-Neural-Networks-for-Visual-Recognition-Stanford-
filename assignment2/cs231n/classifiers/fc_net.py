@@ -77,7 +77,12 @@ class TwoLayerNet(object):
     # TODO: Implement the forward pass for the two-layer net, computing the    #
     # class scores for X and storing them in the scores variable.              #
     ############################################################################
-    pass
+    X = X.reshape((X.shape[0], -1)) #Reshaping the input data into 2D matrix
+    layer1, l1_cache = affine_relu_forward(X, self.params['W1'],
+                                           self.params['b1'])
+    layer2, l2_cache = affine_forward(layer1, self.params['W2'],
+                                      self.params['b2'])
+    scores = layer2
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -87,6 +92,8 @@ class TwoLayerNet(object):
       return scores
     
     loss, grads = 0, {}
+    W1, W2 = self.params['W1'], self.params['W2']
+    b1, b2 = self.params['b1'], self.params['b2']
     ############################################################################
     # TODO: Implement the backward pass for the two-layer net. Store the loss  #
     # in the loss variable and gradients in the grads dictionary. Compute data #
@@ -97,7 +104,8 @@ class TwoLayerNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    pass
+    loss, loss_grad = softmax_loss(scores, y)
+    loss += 0.5 * self.reg * (np.sum(W1*W1) + np.sum(W2*W2) + sum(b1*b1) + sum(b2*b2))
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
