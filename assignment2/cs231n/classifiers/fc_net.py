@@ -107,6 +107,8 @@ class TwoLayerNet(object):
     loss, loss_grad = softmax_loss(scores, y) 
     loss += 0.5 * self.reg * (np.sum(W1*W1) + np.sum(W2*W2))
     
+    l2_grad, grads['W2'], grads['b2'] = affine_backward(loss_grad, l2_cache)
+    dummy, grads['W1'], grads['b1'] = affine_relu_backward(l2_grad, l1_cache)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
