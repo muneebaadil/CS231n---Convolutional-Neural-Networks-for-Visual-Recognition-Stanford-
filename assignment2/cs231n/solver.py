@@ -100,7 +100,7 @@ class Solver(object):
     - verbose: Boolean; if set to false then no output will be printed during
       training.
     """
-    self.model = model
+    self.model = model 
     self.X_train = data['X_train']
     self.y_train = data['y_train']
     self.X_val = data['X_val']
