@@ -270,6 +270,12 @@ class FullyConnectedNet(object):
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
     loss, loss_grad = softmax_loss(scores, y)
+    grad_back, grads['W' + str(self.num_layers)], grads['b' + str(self.num_layers)] =\
+    affine_backward(loss_grad, caches['layer' + str(self.num_layers)])
+    
+    #for l in xrange(self.num_layers - 1, 0, -1): 
+    #    grad_back, grads['W' + str(l)], grads['b' + str(l)] = affine_relu_backward(
+    #    )  
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
