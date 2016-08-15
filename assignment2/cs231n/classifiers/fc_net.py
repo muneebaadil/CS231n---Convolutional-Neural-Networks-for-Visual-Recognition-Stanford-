@@ -273,9 +273,9 @@ class FullyConnectedNet(object):
     grad_back, grads['W' + str(self.num_layers)], grads['b' + str(self.num_layers)] =\
     affine_backward(loss_grad, caches['layer' + str(self.num_layers)])
     
-    #for l in xrange(self.num_layers - 1, 0, -1): 
-    #    grad_back, grads['W' + str(l)], grads['b' + str(l)] = affine_relu_backward(
-    #    )  
+    for l in xrange(self.num_layers - 1, 0, -1): 
+        grad_back, grads['W' + str(l)], grads['b' + str(l)] = affine_relu_backward(
+                                                grad_back, caches['layer' + str(l)])
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
