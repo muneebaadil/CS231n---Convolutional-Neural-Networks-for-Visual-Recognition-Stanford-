@@ -238,7 +238,15 @@ class FullyConnectedNet(object):
     # self.bn_params[1] to the forward pass for the second batch normalization #
     # layer, etc.                                                              #
     ############################################################################
-    pass
+    caches = {}
+    next_input = X.reshape((X.shape[0], -1)) #Reshaping input design matrix as 2D matrix
+    for l in range(1, self.num_layers): 
+            next_input, caches['layer' + str(l)] = affine_relu_forward(next_input, 
+                                                   self.params['W' + str(l)],
+                                                   self.params['b' + str(l)])
+    scores, caches['layer' + str(self.num_layers)] = affine_forward(next_input, 
+                                       self.params['W' + str(self.num_layers)], 
+                                       self.params['b' + str(self.num_layers)])
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -261,7 +269,7 @@ class FullyConnectedNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    pass
+    loss, loss_grad = softmax_loss(scores, y)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
