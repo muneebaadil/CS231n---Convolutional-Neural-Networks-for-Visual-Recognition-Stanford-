@@ -172,13 +172,24 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     # the momentum variable to update the running mean and running variance,    #
     # storing your result in the running_mean and running_var variables.        #
     #############################################################################
-    cache = list()
-    cache.append(np.mean(x, axis = 0))
-    out = x - cache[0]
-    cache.append(np.std(out, axis = 0))
-    out /= (cache[1] + eps)
-    cache.append(out)
-    out = gamma * out + beta
+    cache = dict()
+    x_mean = x.mean(axis = 0)
+    h1 = x - x_mean
+    x_var = x.var(axis = 0)
+    h2 = np.sqrt(x_var + eps)
+    normalized = h1 / h2 
+    out = gamma * normalized + beta 
+    
+    cache['x'] = x 
+    cache['x_mean'] = x_mean
+    cache['h1'] = h1
+    cache['x_var'] = x_var
+    cache['h2'] = h2
+    cache['normalized'] = normalized
+    cache['gamma'] = gamma
+    cache['beta'] = beta
+    cache['eps'] = eps
+    cache['normalized'] = normalized
     
     running_mean = momentum * running_mean + (1 - momentum) * np.mean(x, axis = 0)
     running_var = momentum * running_var + (1 - momentum) * np.std(x, axis = 0)
@@ -230,8 +241,24 @@ def batchnorm_backward(dout, cache):
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
   #############################################################################
-  dgamma = (cache[2] * dout).sum(axis = 0)
+  dgamma = (cache['normalized'] * dout).sum(axis = 0)
   dbeta = dout.sum(axis = 0)
+  dnormalized =  cache['gamma'] * dout
+
+  #Layer h1 is the shifted x-es (x-x_mean_)
+  dh1 = 1./cache['h2'] * dnormalized
+  #Layer: h2 is the sqrt of the var
+  dh2 = (-cache['h1']/np.square(cache['h2']) * dnormalized).sum(axis=0)
+
+  #Layer: Variance
+  dvar = 0.5/np.sqrt(cache['x_var']+cache['eps']) * dh2
+
+  #Layer: mean. this has arrows to h1 and var, but the local derivative of var wrt mean is zero
+  dmean = (-1 * dh1).sum(axis=0) #+ 0 * dvar
+
+  #Layer; x has arrows to mean, var and h1
+  n = dout.shape[0]
+  dx = 1./n * dmean + 1./n*(2*cache['x']-2*cache['x_mean']) * dvar + 1 * dh1
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
