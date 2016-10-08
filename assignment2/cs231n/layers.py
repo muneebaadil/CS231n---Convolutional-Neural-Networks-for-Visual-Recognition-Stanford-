@@ -510,16 +510,20 @@ def max_pool_forward_naive(x, pool_param):
   H_ = 1 + (H - pool_param['pool_height']) / pool_param['stride']
   W_ = 1 + (W - pool_param['pool_width']) / pool_param['stride'] 
   out = np.zeros((N, C, H_, W_))
+  grad_cont = np.zeros(x.shape)
   for i in xrange(0, N): 
     for j in xrange(0, C):
         for k in xrange(0, H_): 
             for l in xrange(0, W_):
-                out[i, j, k, l] = np.max(x[i, j, k * stride: k * stride + pool_h, 
-                                   l * stride: l * stride + pool_w])
+                to_consider = x[i, j, k * stride: k * stride + pool_h, 
+                                   l * stride: l * stride + pool_w]
+                temp = np.argmax(to_consider)
+                out[i, j, k, l] = to_consider[temp / to_consider.shape[1], temp % to_consider.shape[1]]
+                grad_cont[i, j, pool_h * k + (temp / to_consider.shape[1]), pool_w * l + (temp % to_consider.shape[1])] = 1
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
-  cache = (x, pool_param)
+  cache = (grad_cont, pool_param)
   return out, cache
 
 
@@ -529,15 +533,34 @@ def max_pool_backward_naive(dout, cache):
 
   Inputs:
   - dout: Upstream derivatives
-  - cache: A tuple of (x, pool_param) as in the forward pass.
+  - cache: A tuple of (grad_cont, pool_param) as in the forward pass.
 
   Returns:
   - dx: Gradient with respect to x
   """
-  dx = None
+  
+  grad_cont = cache[0]
+  #print grad_cont
+  N, C, H, W = grad_cont.shape
+  pool_param = cache[1]
+  stride = pool_param['stride']
+  pool_h = pool_param['pool_height']
+  pool_w = pool_param['pool_width']
+  dx = np.zeros(grad_cont.shape)
+  H_ = 1 + (H - pool_param['pool_height']) / pool_param['stride']
+  W_ = 1 + (W - pool_param['pool_width']) / pool_param['stride'] 
   #############################################################################
   # TODO: Implement the max pooling backward pass                             #
   #############################################################################
+  for i in xrange(0, N): 
+      for j in xrange(0, C):
+          for k in xrange(0, H_): 
+              for l in xrange(0, W_):
+                  to_consider = grad_cont[i, j, k * stride: k * stride + pool_h, 
+                                   l * stride: l * stride + pool_w]
+                  #print 'came here'
+                  dx[i, j, k * stride: k * stride + pool_h, 
+                                   l * stride: l * stride + pool_w] = to_consider * dout[i, j, k, l]
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
