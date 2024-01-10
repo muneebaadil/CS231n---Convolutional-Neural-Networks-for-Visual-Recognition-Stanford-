@@ -2,7 +2,7 @@
 
 ## Assignment 1.
 - K-nearest neighbours [knn.ipynb](assignment1/knn.ipynb)
-- Support Vector Machines [svm.ipynb](assignment1/knn)
+- Support Vector Machines [svm.ipynb](assignment1/svm.ipynb)
 - Softmax classifier [softmax.ipynb](assignment1/softmax.ipynb)
 - Two Layer Neural Network [two_layer_net.ipynb](assignment1/two_layer_net.ipynb)
 
